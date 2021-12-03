@@ -1,0 +1,201 @@
+Microsoft Windows [Version 10.0.19043.1288]
+(c) Microsoft Corporation. All rights reserved.
+
+C:\Users\seokmin>sqlplus
+
+SQL*Plus: Release 11.2.0.2.0 Production on 목 10월 21 11:55:32 2021
+
+Copyright (c) 1982, 2014, Oracle.  All rights reserved.
+
+Enter user-name: test_user1
+Enter password:
+ERROR:
+ORA-01045: user TEST_USER1 lacks CREATE SESSION privilege; logon denied
+
+
+Enter user-name: test_user1
+Enter password:
+
+Connected to:
+Oracle Database 11g Express Edition Release 11.2.0.2.0 - 64bit Production
+
+SQL> create table tb (
+  2  idx number);
+create table tb (
+*
+ERROR at line 1:
+ORA-01031: insufficient privileges
+
+
+SQL> create table tb (
+  2  idx number);
+create table tb (
+*
+ERROR at line 1:
+ORA-01950: no privileges on tablespace 'SYSTEM'
+
+
+SQL>
+SQL> create table tb (
+  2  idx number);
+
+Table created.
+
+SQL> desc tb;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ IDX                                                NUMBER
+
+SQL> show user;
+USER is "TEST_USER1"
+SQL> conn test_user2;
+Enter password:
+Connected.
+SQL> quit
+Disconnected from Oracle Database 11g Express Edition Release 11.2.0.2.0 - 64bit Production
+
+C:\Users\seokmin>sqlplus
+
+SQL*Plus: Release 11.2.0.2.0 Production on 목 10월 21 12:35:37 2021
+
+Copyright (c) 1982, 2014, Oracle.  All rights reserved.
+
+Enter user-name: test_user2
+Enter password:
+
+Connected to:
+Oracle Database 11g Express Edition Release 11.2.0.2.0 - 64bit Production
+
+SQL> create table tb (
+  2  idx number);
+create table tb (
+*
+ERROR at line 1:
+ORA-01950: no privileges on tablespace 'USERS'
+
+
+SQL> create table tb (
+  2  idx number);
+
+Table created.
+
+SQL> desc tb;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ IDX                                                NUMBER
+
+SQL> ed new_table
+
+SQL> @new_table
+
+Table created.
+
+SQL> ed new_table
+
+SQL> desc tb_seokmin
+ERROR:
+ORA-04043: object tb_seokmin does not exist
+
+
+SQL> ed new_table
+
+SQL> @new_table
+create sequence seq_kosmo
+*
+ERROR at line 1:
+ORA-01031: insufficient privileges
+
+
+SQL> ed new_table
+
+SQL> conn test_user1
+Enter password:
+Connected.
+SQL> conn test_user2
+Enter password:
+Connected.
+SQL> ed new_table
+
+SQL> ed new_table
+
+SQL> @ new_table
+
+Sequence created.
+
+
+1 row created.
+
+SQL> select * from tb_kosmo;
+
+       IDX USER_ID
+---------- ------------------------------------------------------------
+USER_PW
+--------------------------------------------------------------------------------
+USER_NAME
+--------------------------------------------------------------------------------
+POSTDATE
+--------
+         1 gasan1
+1111
+digital
+21/10/21
+
+
+SQL> ed new_table
+
+SQL> conn test_user3;
+Enter password:
+Connected.
+SQL> create table my_tb (
+  2  idx number primary key);
+create table my_tb (
+*
+ERROR at line 1:
+ORA-01950: no privileges on tablespace 'SYSTEM'
+
+
+SQL> exit
+Disconnected from Oracle Database 11g Express Edition Release 11.2.0.2.0 - 64bit Production
+
+C:\Users\seokmin>sqlplus
+
+SQL*Plus: Release 11.2.0.2.0 Production on 목 10월 21 14:46:46 2021
+
+Copyright (c) 1982, 2014, Oracle.  All rights reserved.
+
+Enter user-name: test_user3
+Enter password:
+ERROR:
+ORA-01045: user TEST_USER3 lacks CREATE SESSION privilege; logon denied
+
+
+Enter user-name: test_user1
+Enter password:
+ERROR:
+ORA-01017: invalid username/password; logon denied
+
+
+Enter user-name: test_user1
+Enter password:
+ERROR:
+ORA-01045: user TEST_USER1 lacks CREATE SESSION privilege; logon denied
+
+
+SP2-0157: unable to CONNECT to ORACLE after 3 attempts, exiting SQL*Plus
+
+C:\Users\seokmin>sqlplus
+
+SQL*Plus: Release 11.2.0.2.0 Production on 목 10월 21 14:52:07 2021
+
+Copyright (c) 1982, 2014, Oracle.  All rights reserved.
+
+Enter user-name: test_user2
+Enter password:
+
+Connected to:
+Oracle Database 11g Express Edition Release 11.2.0.2.0 - 64bit Production
+
+SQL> quit
+Disconnected from Oracle Database 11g Express Edition Release 11.2.0.2.0 - 64bit Production
+
+C:\Users\seokmin>
