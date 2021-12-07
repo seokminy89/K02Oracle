@@ -141,5 +141,84 @@ create sequence seq_board_num
 insert into member (id, pass, name) values ('musthave', '1234', '머스트해브');
 insert into board (num, title, content, id, postdate, visitcount)
     values (seq_board_num.nextval, '제목1입니다.', '내용1입니다.', 'musthave', sysdate, 0);
+insert into board (num, title, content, id, postdate, visitcount)
+    values (seq_board_num.nextval, '제목2입니다.', '내용2입니다.', 'musthave', sysdate, 0);
+insert into board (num, title, content, id, postdate, visitcount)
+    values (seq_board_num.nextval, '제목3입니다.', '내용3입니다.', 'musthave', sysdate, 0);
+insert into board (num, title, content, id, postdate, visitcount)
+    values (seq_board_num.nextval, '제목4입니다.', '내용4입니다.', 'musthave', sysdate, 0);
+insert into board (num, title, content, id, postdate, visitcount)
+    values (seq_board_num.nextval, '제목5입니다.', '내용5입니다.', 'musthave', sysdate, 0);
 commit;
+
+
+--Model1 방식의 회원제 게시판 제작하기.
+
+--board 테이블의 게시물 수 카운트 하기.
+select count(*) from board; -- 전체게시물
+--검색을 하는 경우에 카운트 하기
+select count(*) from board where title like '%제목%';
+select count(*) from board where title like '%제목9%';
+
+--전체 게시물 출력하기
+select * from board;
+--게시물 검색하기
+select * from board where title like '%제목%';--1건 인출됨
+select * from board where title like '%내용%';--0건 인출됨
+--정렬까지 추가하기
+select * from board order by num desc;
+select * from board where title like '%제목%' order by num desc;
+select * from board where title like '%제목3%' order by num desc;
+
+--더미데이터 추가하기
+INSERT INTO board VALUES (seq_board_num.nextval, '지금은 봄입니다', '봄의왈츠', 'musthave', sysdate, 0);
+INSERT INTO board VALUES (seq_board_num.nextval, '지금은 여름입니다', '여름향기', 'musthave', sysdate, 0);
+INSERT INTO board VALUES (seq_board_num.nextval, '지금은 가을입니다', '가을동화', 'musthave', sysdate, 0);
+INSERT INTO board VALUES (seq_board_num.nextval, '지금은 겨울입니다', '겨울연가', 'musthave', sysdate, 0);
+commit;
+
+--게시판 상세보기 처리 : 회원의 이름을 출력하기 위해 Join문 작성
+--가령 9번 게시물을 읽고 싶다면 
+select * from board where num=9;
+--작성자 이름을 확인하기 위해 join문 작성
+select
+    num, title, content, id, postdate, visitcount, name
+from board inner join member on board.id=member.id
+where num=9; -- id 컬럼이 애매하므로 에러 발생됨.
+
+--테이블에 별칭을 사용하고, 애매한 id컬럼에도 별칭추가함
+select
+    num, title, content, B.id, postdate, visitcount, name
+from board B inner join member M 
+    on B.id=M.id
+where num=9;
+
+select
+    B.*, M.name
+from board B inner join member M 
+    on B.id=M.id
+where num=9;
+
+--앞의 쿼리문을 using을 통해 조금 더 간소화 하기.
+/*
+    using은 참조하는 두개의 테이블에 동일한 이름의 컬럼이 있을때만
+    사용할 수 있는 문장이다. 따라서 별칭, on절이 필요 없어 지므로
+    쿼리문이 좀 더 간소해진다.
+*/
+select
+    num, title, content, id, postdate, visitcount, name
+from board inner join member
+    using(id)
+where num=9;
+
+--게시물을 읽을 경우 조회수 1증가시키기
+
+/*
+    visitcount 컬럼은 number 타입이므로 사칙연산이 가능하다.
+*/
+update board set visitcount = visitcount+1 where num=9;
+
+commit;
+
+
 
