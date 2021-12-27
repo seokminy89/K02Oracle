@@ -1,5 +1,4 @@
 /***********************
-나중에 이름 변경해 hr계정~1로 되어 있어
 파일명 : Or10SubQuery.sql
 서브쿼리
 설명 : 쿼리문안에 또 다른 쿼리문이 들어가는 형태의 select문
@@ -156,8 +155,8 @@ select * from
     (select tb.*, rownum rNum from
         (select * from employees order by first_name asc) tb)
 --where rNum between 1 and 10;
---where rNum between 11 and 20;
-where rNum between 21 and 30;
+where rNum between 11 and 20;
+--where rNum between 21 and 30;
 /*
     between의 구간을 위와 같이 변경해 주면 해당 페이지의 레코드만 
     추출하게 된다. 위의 구간은 차우 JSP에서 여러가지 변수를 조합하여

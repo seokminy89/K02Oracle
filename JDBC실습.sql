@@ -220,5 +220,140 @@ update board set visitcount = visitcount+1 where num=9;
 
 commit;
 
+--게시물 수정하기
+select * from board order by num desc; --기존 게시물 확인
+
+update board
+    set title= '봄의왈츠', content='겁나 재미없음'
+    where num=6;
+
+select * from board where num = 6;
+
+commit;
+
+--삭제하기
+delete from board where num=5; --일련번호 5번 삭제
+commit;
+
+--게시판 페이징 처리하기.
+select * from board;
+select * from board order by num desc; --일련 번호를 내림차순으로 정렬
+select num, title, rownum from board order by num desc; --rownum 확인
+--일련 번호를 내림차순으로 정렬한 상태에서 rownum 부여
+select Tb.*, rownum rNum from
+    (select * from board order by num desc) Tb;
+--구간을 정해서 가져오기(페이징 처리에서 사용할 최종쿼리문)
+select * from (
+    select Tb.*, rownum rNum from
+        (select * from board order by num desc) Tb)
+--where rNum between 1 and 10;
+where rNum between 11 and 20;
+--where rNum between 21 and 30;
 
 
+--검색어 처리하기 : '처리-1'이 포함된 모든 레코드 검색
+select * from (
+    select Tb.*, rownum rNum from
+        (select * from board 
+        where title like '%처리-1%'
+        order by num desc) Tb)
+--where rNum between 1 and 10;
+where rNum between 11 and 20;
+
+
+--파일 업로드를 위한 테이블 생성
+drop table myfile;
+create table myfile(
+    idx number primary key,
+    name varchar2(50) not null,
+    title varchar2(200) not null,
+    cate varchar2(100),
+    ofile varchar2(100) not null,
+    sfile varchar2(30) not null,
+    postdate date default sysdate not null
+);
+commit;
+
+--동적 우편번호 구현하기(csv파일을 import)
+create table zipcode(
+    zipcode char(7),
+    sido varchar2(10),
+    gugun varchar2(50),
+    dong varchar2(200),
+    bunji varchar2(50),
+    seq number 
+);
+
+--시도 가져오기
+select * from zipcode;
+select sido from zipcode;
+--시도의 중복을 제거한 후 셀렉트 하기
+select distinct sido from zipcode;
+
+--구/군 가져오기
+select gugun from zipcode where sido='서울';
+select distinct gugun from zipcode where sido='서울';
+select distinct gugun from zipcode where sido='강원';
+
+--모델2 방식의 비회원제 자료실형 게시판 만들기
+
+--테이블 생성
+create table mvcboard(
+    idx number primary key, --일련번호
+    name varchar2(50) not null, --작성자명
+    title varchar2(200) not null,
+    content varchar2(2000) not null,
+    postdate date default sysdate not null,
+    ofile varchar2(200), --첨부파일의 원본 파일명
+    sfile varchar2(30),  --서버에 실제 저장된 파일명
+    downcount number(5) default 0 not null, --파일 다운로드 카운트 수
+    pass varchar2(50) not null, --비밀번호(수정, 삭제에서 확인을 위해 사용)
+    visitcount number(5) default 0 not null --게시물 조회수
+);
+
+
+
+--더미데이터 입력
+insert into mvcboard(idx, name, title, content, pass)
+    values(seq_board_num.nextval, '김유신', '자료실 제목1 입니다.','내용','1234');
+insert into mvcboard(idx, name, title, content, pass)
+    values(seq_board_num.nextval, '장보고', '자료실 제목2 입니다.','내용','1234');
+insert into mvcboard(idx, name, title, content, pass)
+    values(seq_board_num.nextval, '이순신', '자료실 제목3 입니다.','내용','1234');
+insert into mvcboard(idx, name, title, content, pass)
+    values(seq_board_num.nextval, '강감찬', '자료실 제목4 입니다.','내용','1234');
+insert into mvcboard(idx, name, title, content, pass)
+    values(seq_board_num.nextval, '대조영', '자료실 제목5 입니다.','내용','1234');
+
+--커밋
+
+commit;
+
+--게시물 수 카운트하기
+select count(*) from mvcboard;
+select count(*) from mvcboard where name like '%보고%';
+
+--페이징 적용한 select 쿼리문
+--기본 쿼리  : 작성일의 내림차순으로 정렬
+select * from mvcboard order by idx desc;
+--rownum 추가하기
+select Tb.*, rownum rNum from(
+    select * from mvcboard order by idx desc) Tb;
+--페이징 구간을 적용한 쿼리문 완성
+select * from(
+    select Tb.*, rownum rNum from(
+        select * from mvcboard order by idx desc) Tb)
+--where rNum>=1 and rNum<=3;
+--where rNum>=4 and rNum<=6;
+where rNum between 1 and 3;
+--검색조건 추가하기
+select * from(
+    select Tb.*, rownum rNum from(
+        select * from mvcboard 
+        where title like '%제목2%'
+        order by idx desc) Tb)
+where rNum>=1 and rNum<=3;
+
+
+create user justcoding identified by 1234;
+grant connect, resource to justcoding;
