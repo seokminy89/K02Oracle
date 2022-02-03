@@ -357,3 +357,152 @@ where rNum>=1 and rNum<=3;
 
 create user justcoding identified by 1234;
 grant connect, resource to justcoding;
+
+
+/**************************************/
+/*
+Spring 게시판 제작1
+    -JDBCTemplate으로 구현한다.
+    -비회원제 게시판
+*/
+
+
+--테이블 생성
+create table springboard(
+    idx number primary key,  /* 일련번호 */
+    name varchar2(30) not null, /* 작성자명 */
+    title varchar2(200) not null, /* 제목 */
+    contents varchar2(4000) not null, /* 내용 */
+    postdate date default sysdate, /* 작성일 */
+    hits number default 0,  /* 조회수 */
+    bgroup number default 0,
+    bstep number default 0,
+    bindent number default 0,
+    pass varchar2(30) /* 비밀번호 */
+);
+-- 시퀀스 생성
+create sequence springboard_seq
+    increment by 1
+    start with 1
+    minvalue 1
+    nomaxvalue
+    nocycle
+    nocache;
+--더미데이터 추가
+insert into springboard values (springboard_seq.nextval, '코스모1',
+    '스프링게시판 첫번째 입니다.', '내용입니다.', sysdate, 0,
+    springboard_seq.nextval, 0, 0, '1234');
+insert into springboard values (springboard_seq.nextval, '코스모2',
+    '스프링게시판 두번째 입니다.', '내용입니다.', sysdate, 0,
+    springboard_seq.nextval, 0, 0, '1234');
+insert into springboard values (springboard_seq.nextval, '코스모3',
+    '스프링게시판 세번째 입니다.', '내용입니다.', sysdate, 0,
+    springboard_seq.nextval, 0, 0, '1234');
+insert into springboard values (springboard_seq.nextval, '코스모4',
+    '스프링게시판 네번째 입니다.', '내용입니다.', sysdate, 0,
+    springboard_seq.nextval, 0, 0, '1234');
+insert into springboard values (springboard_seq.nextval, '코스모5',
+    '스프링게시판 다섯번째 입니다.', '내용입니다.', sysdate, 0,
+    springboard_seq.nextval, 0, 0, '1234');
+    
+select * from springboard;
+commit;
+
+/*****************************************************/
+/*
+Spring 게시판 제작2
+    -Mybatis로 제작
+    -회원제 방명록(한줄게시판) 제작.  
+*/
+--테이블 생성(회원제로 구현하기 위해 id컬럼이 있음)
+create table myboard (
+    idx number primary key,
+    id varchar2(30) not null,
+    name varchar2(30) not null,
+    contents varchar2(4000) not null
+);
+--시퀀스 생성
+create sequence myboard_seq
+    increment by 1
+    start with 1
+    minvalue 1
+    nomaxvalue
+    nocycle
+    nocache;
+--더미데이터 입력
+insert into myboard values (myboard_seq.nextval, 'kosmo', '코스모',
+    '방명록1 게시판 입니다.');
+insert into myboard values (myboard_seq.nextval, 'kosmo', '고스톱',
+    '방명록2 게시판 입니다.');
+insert into myboard values (myboard_seq.nextval, 'kosmo', '기즈모',
+    '방명록3 게시판 입니다.');
+insert into myboard values (myboard_seq.nextval, 'kosmo', '스모',
+    '방명록4 게시판 입니다.');
+commit;
+select * from myboard;
+select * from member;
+
+--방명록 게시판 페이징 처리 쿼리문
+--between절 사용
+select * from (
+    select Tb.*, rownum rNum from (
+        select * from myboard order by idx desc) Tb
+    )
+where rNum between 1 and 3;
+
+--비교 연산자 사용
+select * from (
+    select Tb.*, rownum rNum from (
+        select * from myboard order by idx desc) Tb
+    )
+where rNum >= 1 and rNum<= 3;
+
+/*******************
+트랜잭션 처리
+    : 티켓 구매와 결제를 동시에 시도한다.
+*******************/
+--티켓 구매 금액을 입력하는 테이블
+create table transaction_pay (
+    customerId varchar2(30) not null,
+    amount number not null
+);
+--구매한 티켓의 매수를 입력하는 테이블
+--체크 제약조건에 의해 5장을 초과하면 에러발생됨
+create table transaction_ticket (
+    customerId varchar2(30) not null,
+    countNum number(2) not null
+        check(countNum<=5)
+);
+--데이터 입력 테스트
+--티켓 2장을 구매했다고 가정..
+insert into transaction_ticket values ('kosmo', 2);
+insert into transaction_pay values ('kosmo', 20000);
+
+select * from transaction_ticket;
+select * from transaction_pay;
+--check제약조건 위배로 쿼리 오류 발생됨
+insert into transaction_ticket values ('error', 6);
+
+/*
+스프링 시큐리티 3단계 커스텀을 위한 테이블 생성
+※회원테이블 구성시 아래 4개의 컬럼은 필수적으로 있어야 하고
+그 외의 컬럼(name이나 email)은 필요에 따라 추가하면 된다.
+*/
+create table security_admin (
+    user_id varchar2(30) primary key, --회원아이디
+    user_pw varchar2(30) not null,    --패스워드
+    authority varchar2(20) default 'ROLE_USER', --권한
+    enabled number(1) default 1       --활성화여부(0이면 비활성화)
+);
+--더미데이터 입력
+insert into security_admin values ('kosmo_user1', '1234', 'ROLE_USER', 1); --로그인 됨
+insert into security_admin values ('kosmo_user2', '1234', 'ROLE_USER', 0);  --로그인 안됨
+insert into security_admin values ('kosmo_admin1', '1234', 'ROLE_ADMIN', 1); --로그인 됨
+insert into security_admin values ('kosmo_admin2', '1234', 'ROLE_ADMIN', 0); --로그인 안됨
+
+commit;
+
+
+
+
+
